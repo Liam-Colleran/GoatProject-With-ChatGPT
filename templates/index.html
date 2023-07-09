@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shoe Search</title>
+</head>
+<body>
+    <h1>Shoe Search</h1>
+    <form id="searchForm">
+        <label for="searchQuery">Search Query:</label>
+        <input type="text" id="searchQuery" name="searchQuery" required>
+        <br>
+        <label for="numberOfShoes">Number of Shoes:</label>
+        <input type="number" id="numberOfShoes" name="numberOfShoes" required>
+        <br>
+        <input type="submit" value="Search">
+    </form>
+    <div id="results"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#searchForm").submit(function(event) {
+                event.preventDefault();
+
+                var query = $("#searchQuery").val();
+                var numberOfShoes = parseInt($("#numberOfShoes").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/search",
+                    contentType: "application/json",
+                    data: JSON.stringify({ query: query, numberOfShoes: numberOfShoes }),
+                    success: function(response) {
+                        displayResults(response);
+                    }
+                });
+            });
+
+            function displayResults(response) {
+                var resultsDiv = $("#results");
+                resultsDiv.empty();
+
+                response.shoes.forEach(function(shoe, index) {
+                    var shoeDiv = $("<div>").addClass("shoe");
+
+                    $("<h2>").text("Shoe #" + (index + 1)).appendTo(shoeDiv);
+                    $("<p>").text("Name: " + shoe.name).appendTo(shoeDiv);
+                    $("<img>").attr("src", shoe.image).appendTo(shoeDiv);
+                    $("<p>").text("Condition: " + shoe.condition).appendTo(shoeDiv);
+                    $("<p>").text("Released in: " + shoe.release).appendTo(shoeDiv);
+                    $("<p>").text("Retail Price: $" + shoe.retailPrice.toFixed(2)).appendTo(shoeDiv);
+
+                    shoeDiv.appendTo(resultsDiv);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
